@@ -1,5 +1,4 @@
 import { BuildingIcon, MapPinIcon, BriefcaseIcon, DollarSignIcon, ExternalLinkIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { JobListing } from "../api/jobs";
 import { ScoreBadge } from "./ScoreBadge";
 

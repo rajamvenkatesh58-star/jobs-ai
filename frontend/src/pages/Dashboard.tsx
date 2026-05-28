@@ -3,12 +3,6 @@ import { BriefcaseIcon, CheckCircleIcon, MicIcon, TrendingUpIcon } from "lucide-
 import { api } from "../api/client";
 import { jobsApi } from "../api/jobs";
 
-interface Stats {
-  total_jobs: number;
-  high_score_jobs: number;
-  pending_applications: number;
-  completed_interviews: number;
-}
 
 function StatCard({ icon: Icon, label, value, colour }: {
   icon: typeof BriefcaseIcon;
