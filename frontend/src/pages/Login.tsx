@@ -29,10 +29,14 @@ export function Login() {
       localStorage.setItem("access_token", data.access_token);
       navigate("/");
     } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        "Something went wrong";
-      setError(String(msg));
+      const e = err as { response?: { data?: { detail?: unknown }; status?: number }; message?: string };
+      const detail = e?.response?.data?.detail;
+      const msg = Array.isArray(detail)
+        ? (detail[0] as { msg?: string })?.msg ?? "Validation error"
+        : detail
+        ? String(detail)
+        : e?.message ?? "Network error — check your connection";
+      setError(msg);
     } finally {
       setLoading(false);
     }
