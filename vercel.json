@@ -1,8 +1,14 @@
 {
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
+  "redirects": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://backend-production-6bf69.up.railway.app/api/:path*",
+      "permanent": false
+    }
+  ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/:path*", "destination": "/index.html" }
   ]
 }
