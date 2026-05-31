@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cd C:\\\\jobs-ai; $status = \"BUILDING\"; while \\($status -eq \"BUILDING\" -or $status -eq \"DEPLOYING\"\\) { Start-Sleep -Seconds 20; $out = railway service status 2>&1 | Out-String; $status = if \\($out -match \"Status: \\(\\\\w+\\)\"\\) { $Matches[1] } else { \"UNKNOWN\" }; Write-Host \"$\\(Get-Date -Format 'HH:mm:ss'\\) - $status\" }; Write-Host \"Done: $status\")",
+      "PowerShell(Invoke-RestMethod -Uri \"https://backend-production-6bf69.up.railway.app/api/health\" -TimeoutSec 15 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"https://backend-production-6bf69.up.railway.app/api/health\" -TimeoutSec 60 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"https://backend-production-6bf69.up.railway.app/api/health\" -TimeoutSec 30 2>&1)",
+      "PowerShell(npx vercel ls 2>&1)",
+      "WebFetch(domain:claude.ai)"
+    ]
+  }
+}

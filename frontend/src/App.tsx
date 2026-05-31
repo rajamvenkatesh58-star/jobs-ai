@@ -6,6 +6,7 @@ import { InterviewCoach } from "./pages/InterviewCoach";
 import { JobQueue } from "./pages/JobQueue";
 import { Login } from "./pages/Login";
 import { Profile } from "./pages/Profile";
+import { Tracker } from "./pages/Tracker";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/jobs" element={<JobQueue />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/interview" element={<InterviewCoach />} />
+          <Route path="/tracker" element={<Tracker />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
