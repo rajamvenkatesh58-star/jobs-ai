@@ -15,10 +15,9 @@ WORKDIR /app
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-RUN pip install --no-cache-dir --no-build-isolation openai-whisper==20240930
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python -c "import whisper; whisper.load_model('base.en')"
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base.en', device='cpu', compute_type='int8')"
 
 COPY backend/ .
 

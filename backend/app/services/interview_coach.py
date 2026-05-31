@@ -19,7 +19,7 @@ from typing import Any
 
 import edge_tts
 import numpy as np
-import whisper
+from faster_whisper import WhisperModel
 
 from openai import AsyncOpenAI
 
@@ -39,14 +39,14 @@ COACH_MODEL = "llama-3.3-70b-versatile"
 EDGE_TTS_VOICE = "en-AU-NatashaNeural"  # Australian English female voice
 
 # Whisper model loaded once at startup (lazy)
-_whisper_model: whisper.Whisper | None = None
+_whisper_model: WhisperModel | None = None
 
 
-def _get_whisper() -> whisper.Whisper:
+def _get_whisper() -> WhisperModel:
     global _whisper_model
     if _whisper_model is None:
         logger.info("Loading Whisper model (base.en) — first call only")
-        _whisper_model = whisper.load_model("base.en")
+        _whisper_model = WhisperModel("base.en", device="cpu", compute_type="int8")
     return _whisper_model
 
 
@@ -168,8 +168,8 @@ def transcribe_audio(audio_b64: str) -> str:
         tmp_path = tmp.name
 
     try:
-        result = model.transcribe(tmp_path, language="en", fp16=False)
-        return result["text"].strip()
+        segments, _ = model.transcribe(tmp_path, language="en", beam_size=5)
+        return " ".join(seg.text for seg in segments).strip()
     finally:
         os.unlink(tmp_path)
 
