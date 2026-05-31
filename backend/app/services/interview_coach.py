@@ -163,7 +163,7 @@ def transcribe_audio(audio_b64: str) -> str:
     audio_bytes = base64.b64decode(audio_b64)
     model = _get_whisper()
 
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
         tmp.write(audio_bytes)
         tmp_path = tmp.name
 

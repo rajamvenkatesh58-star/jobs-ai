@@ -1,18 +1,18 @@
 import axios from "axios";
 
-const RAILWAY = "https://backend-production-6bf69.up.railway.app";
-const baseURL = `${RAILWAY}/api`;
+// Fallback to hardcoded URL to guard against BOM-corrupted env vars
+const raw = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const BASE = raw && raw.startsWith("http") ? raw : "https://backend-production-6bf69.up.railway.app";
+export const BASE_URL = `${BASE}/api`;
 
 export const api = axios.create({
-  baseURL,
+  baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 

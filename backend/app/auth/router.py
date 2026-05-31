@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.jwt import create_access_token, hash_password, verify_password
+from app.auth.jwt import create_access_token, get_current_user, hash_password, verify_password
 from app.db.session import get_db
 from app.models.profile import CandidateProfile
 from app.models.user import User
@@ -51,3 +51,8 @@ async def login(
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account disabled")
     return Token(access_token=create_access_token(user.id))
+
+
+@router.get("/me", response_model=UserRead)
+async def me(current_user: Annotated[User, Depends(get_current_user)]):
+    return current_user

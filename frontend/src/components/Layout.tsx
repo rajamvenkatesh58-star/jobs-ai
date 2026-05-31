@@ -5,23 +5,39 @@ import {
   BookmarkIcon, SendIcon, CalendarIcon, TrophyIcon, ArchiveIcon,
   ZapIcon, LogOutIcon,
 } from "lucide-react";
+import { useApplications } from "../hooks/useApplications";
+import { useJobs } from "../hooks/useJobs";
+import { useInterviewSessions } from "../hooks/useInterview";
 
 const workspace = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard", key: "D" },
-  { to: "/jobs", icon: BriefcaseIcon, label: "Job Queue", key: "J", badge: 38 },
+  { to: "/jobs", icon: BriefcaseIcon, label: "Job Queue", key: "J" },
   { to: "/profile", icon: UserIcon, label: "Profile", key: "P" },
   { to: "/interview", icon: MicIcon, label: "Interview", key: "I" },
 ];
 
-const pipeline = [
-  { label: "Saved Jobs", icon: BookmarkIcon, count: 17 },
-  { label: "Applied", icon: SendIcon, count: 9 },
-  { label: "Interviewing", icon: CalendarIcon, count: 3 },
-  { label: "Offers", icon: TrophyIcon, count: 1 },
-  { label: "Archive", icon: ArchiveIcon, count: 42 },
-];
 
 export function Layout() {
+  const { data: applications } = useApplications();
+  const { data: jobs } = useJobs(70);
+  const { data: sessions } = useInterviewSessions();
+
+  const pipelineCounts = {
+    saved: (jobs ?? []).length,
+    applied: (applications ?? []).filter((a) => a.status === "submitted").length,
+    interviewing: (sessions ?? []).filter((s) => s.status === "in_progress").length,
+    offers: 0,
+    archive: (applications ?? []).filter((a) => a.status === "dismissed").length,
+  };
+
+  const pipeline = [
+    { label: "Saved Jobs", icon: BookmarkIcon, count: pipelineCounts.saved, to: "/jobs" },
+    { label: "Applied", icon: SendIcon, count: pipelineCounts.applied, to: "/tracker" },
+    { label: "Interviewing", icon: CalendarIcon, count: pipelineCounts.interviewing, to: "/interview" },
+    { label: "Offers", icon: TrophyIcon, count: pipelineCounts.offers, to: "/tracker" },
+    { label: "Archive", icon: ArchiveIcon, count: pipelineCounts.archive, to: "/tracker" },
+  ];
+
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       {/* Sidebar */}
@@ -37,16 +53,15 @@ export function Layout() {
               <div className="text-[10px] text-ink-400 font-mono mono">V2.4</div>
             </div>
           </div>
-          {/* User */}
+          {/* User — initials from JWT sub, no hardcoded name */}
           <div className="mt-4 flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: 'linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent2)))' }}>
-              AN
+              ME
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-ink-100 truncate">Alex Nguyen</div>
+              <div className="text-xs font-semibold text-ink-100 truncate">My Account</div>
               <div className="flex items-center gap-1">
                 <span className="text-[9px] font-bold px-1 rounded" style={{ background: 'rgb(var(--accent) / 0.12)', color: 'rgb(var(--accent))' }}>PRO</span>
-                <span className="text-[10px] text-ink-400 truncate">Sydney NSW</span>
               </div>
             </div>
           </div>
@@ -56,7 +71,7 @@ export function Layout() {
         <div className="px-3 pt-4">
           <div className="text-[10px] font-semibold text-ink-500 uppercase tracking-widest px-2 mb-1.5">Workspace</div>
           <nav className="space-y-0.5">
-            {workspace.map(({ to, icon: Icon, label, key, badge }) => (
+            {workspace.map(({ to, icon: Icon, label, key }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -73,9 +88,6 @@ export function Layout() {
               >
                 <Icon size={15} className="shrink-0" />
                 <span className="flex-1">{label}</span>
-                {badge && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: 'rgb(var(--accent))' }}>{badge}</span>
-                )}
                 <span className="text-[9px] text-ink-500 font-mono mono border border-ink-700 rounded px-1">{key}</span>
               </NavLink>
             ))}
@@ -86,17 +98,18 @@ export function Layout() {
         <div className="px-3 pt-5">
           <div className="text-[10px] font-semibold text-ink-500 uppercase tracking-widest px-2 mb-1.5">Pipeline</div>
           <div className="space-y-0.5">
-            {pipeline.map(({ label, icon: Icon, count }) => (
-              <div key={label} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-ink-400 hover:text-ink-200 hover:bg-white/30 cursor-pointer transition-all">
+            {pipeline.map(({ label, icon: Icon, count, to }) => (
+              <NavLink key={label} to={to}
+                className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-ink-400 hover:text-ink-200 hover:bg-white/30 transition-all">
                 <Icon size={13} className="shrink-0" />
                 <span className="flex-1">{label}</span>
-                <span className="text-[10px] text-ink-500 font-mono mono">{count}</span>
-              </div>
+                <span className="num text-[10px] text-ink-500 font-mono mono">{count}</span>
+              </NavLink>
             ))}
           </div>
         </div>
 
-        {/* Scout Live */}
+        {/* Scout Live — shows once user has configured seek keywords */}
         <div className="mt-auto px-3 pb-4">
           <div className="glass rounded-xl p-3 shadow-glass">
             <div className="flex items-center gap-2 mb-2">
@@ -104,12 +117,12 @@ export function Layout() {
               <span className="text-[11px] font-semibold text-ink-200">Scout Live</span>
             </div>
             <div className="text-[10px] text-ink-400 leading-relaxed">
-              Scanning <span className="text-ink-200 font-semibold">47 boards</span> across AU
+              Scanning Seek AU job boards
             </div>
-            <div className="text-[10px] text-ink-500 mt-0.5">Next sweep in <span className="text-mint font-mono mono">42s</span></div>
-            <button className="mt-2.5 w-full text-[10px] font-semibold py-1.5 rounded-lg transition-all" style={{ background: 'rgb(var(--accent) / 0.1)', color: 'rgb(var(--accent))' }}>
-              Tune Scout
-            </button>
+            <div className="text-[10px] text-ink-500 mt-0.5">Click <span className="text-ink-300 font-semibold">Ingest Jobs</span> on Dashboard to pull latest</div>
+            <a href="/profile" className="mt-2.5 w-full block text-center text-[10px] font-semibold py-1.5 rounded-lg transition-all" style={{ background: 'rgb(var(--accent) / 0.1)', color: 'rgb(var(--accent))' }}>
+              Configure Scout
+            </a>
           </div>
           <button
             onClick={() => { localStorage.removeItem("access_token"); window.location.href = "/login"; }}
